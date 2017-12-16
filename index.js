@@ -15,17 +15,27 @@ app.get("/hello", function (req, res) {
 
 
 app.use(function (req, res, next) {
-    // if(req.method=="OPTIONS"){
-    //     next();
-    // }
     res.header('Access-Control-Allow-Origin', '*');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,DELETE,POST');
     res.header('Access-Control-Allow-Headers', 'Content-Type,Authorization');
     next();
 })
 
-app.post("/register", function (req, res) {
 
+
+app.get("/greetings", function (req, res) {
+
+    if (!req.headers.authorization) {
+        res.status(401).send({
+            message: "You are not authorised"
+        })
+    }
+
+    res.status(200).send(JSON.stringify({
+        greetings: [{}, {}]
+    }))
+})
+app.post("/register", function (req, res) {
 
     var user = req.body;
     var newUser = new User.model({
