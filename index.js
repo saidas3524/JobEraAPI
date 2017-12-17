@@ -31,6 +31,15 @@ app.get("/greetings", function (req, res) {
         })
     }
 
+    var token = req.headers.authorization.split(' ')[1];
+    var payload = jwt.decode(token,"mysecret");
+
+    if(!payload.sub){
+        res.status(401).send({message:"not authorised"})
+    } 
+
+
+
     res.status(200).send(JSON.stringify({
         greetings: [{}, {}]
     }))
@@ -47,7 +56,7 @@ app.post("/register", function (req, res) {
 
     var payload = {
         issuer: req.hostname,
-        sub: user._id
+        sub: newUser._id
     }
 
     var jwtoken = jwt.encode(payload, "mysecret");
