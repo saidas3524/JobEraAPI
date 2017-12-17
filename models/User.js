@@ -29,6 +29,11 @@ UserSchema.pre('save',function(next){
     })
 })
 
+UserSchema.methods.comparePasswords = function(password,callback){
+    bcrypt.compare(password,this.password,callback);
+}
+
+
 
 UserSchema.methods.toJSON = function(){
     var user = this.toObject();
@@ -36,5 +41,5 @@ UserSchema.methods.toJSON = function(){
     return user;
 }
 
-exports.model = mongoose.model('User',UserSchema);
+module.exports = mongoose.model('User',UserSchema);
 

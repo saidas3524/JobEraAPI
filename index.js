@@ -2,7 +2,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
 var User = require("./models/User");
-var jwt = require("./services/jwt");
+var jwt = require("jwt-simple");
 
 mongoose.connect("mongodb://test:test@ds137246.mlab.com:37246/mydb")
 var app = express();
@@ -22,6 +22,38 @@ app.use(function (req, res, next) {
 })
 
 
+app.post("/login", function (req, res) {
+    req.user = req.body;
+    var searchUser = { userName: req.user.userName };
+    User.findOne(searchUser, function (err, user) {
+        if (err) throw err;
+        if(!user){
+           return res.status(401).send({ message: "wrong UserName/password" });
+        }
+        user.comparePasswords(req.user.password, function (err, isValidpassword) {
+            if (err) throw err;
+            if (!isValidpassword) {
+              return  res.status(401).send({ message: "wrong password" });
+            }
+            createToken(user,res);
+        });
+    })
+})
+
+function createToken(user, res) {
+    var payload = {
+        sub: user._id
+    }
+
+    var jwtoken = jwt.encode(payload, "mysecret");
+    return res.status(200).send({
+        token: jwtoken,
+        user: user.toJSON()
+
+    });
+
+}
+
 
 app.get("/greetings", function (req, res) {
 
@@ -32,11 +64,11 @@ app.get("/greetings", function (req, res) {
     }
 
     var token = req.headers.authorization.split(' ')[1];
-    var payload = jwt.decode(token,"mysecret");
+    var payload = jwt.decode(token, "mysecret");
 
-    if(!payload.sub){
-        res.status(401).send({message:"not authorised"})
-    } 
+    if (!payload.sub) {
+        res.status(401).send({ message: "not authorised" })
+    }
 
 
 
@@ -47,7 +79,7 @@ app.get("/greetings", function (req, res) {
 app.post("/register", function (req, res) {
 
     var user = req.body;
-    var newUser = new User.model({
+    var newUser = new User({
         name: user.name,
         userName: user.userName,
         email: user.email,
@@ -62,11 +94,7 @@ app.post("/register", function (req, res) {
     var jwtoken = jwt.encode(payload, "mysecret");
     newUser.save(function (err) {
 
-        res.status(200).send({
-            token: jwtoken,
-            user: newUser.toJSON()
-
-        });
+        createToken(newUser, res);
     })
 
 
