@@ -126,20 +126,26 @@ function createToken(user, res) {
 
 app.get("/greetings", function (req, res) {
 
-    if (!req.headers.authorization) {
-        res.status(401).send({
-            message: "You are not authorised"
-        })
-    }
-    var token = req.headers.authorization.split(' ')[1];
-    var payload = jwt.decode(token, "mysecret");
-
-    if (!payload.sub) {
-        res.status(401).send({ message: "not authorised" })
-    }
+    checkAuthorisation(req, res);
     res.status(200).send(JSON.stringify({
         greetings: [{}, {}]
     }))
+})
+app.get("/getUserInfo",function(req,res){
+   var id =   checkAuthorisation(req,res);
+    var searchUser = { _id: id }
+
+    User.findOne(searchUser, function (err, user) {
+        if (err ) return res.status(400).json({
+            message:"something went wrong"
+        });
+        if (!user) {
+            return res.status(400).json({
+                message:"user doesnt exist"
+            })
+        }
+        return res.status(200).send(user);
+    })
 })
 
 
@@ -148,4 +154,18 @@ var server = app.listen(3300, function () {
     console.log("app is running on ", server.address().port);
 });
 
+
+function checkAuthorisation(req, res) {
+    if (!req.headers.authorization) {
+        res.status(401).send({
+            message: "You are not authorised"
+        });
+    }
+    var token = req.headers.authorization.split(' ')[1];
+    var payload = jwt.decode(token, "mysecret");
+    if (!payload.sub) {
+        res.status(401).send({ message: "not authorised" });
+    }
+    return payload.sub;
+}
 
