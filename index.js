@@ -1,3 +1,4 @@
+
 var express = require("express");
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
@@ -147,6 +148,34 @@ app.get("/getUserInfo",function(req,res){
         return res.status(200).send(user);
     })
 })
+app.get("/getProfiles",function(req,res){
+    var id =   checkAuthorisation(req,res);
+    var profile = {
+        firstName:"Sai Krishna",
+        lastName:"Dasoju",
+        title:"Software Engineer",
+        description:"something needs to be written to be tested"
+    };
+
+    var profiles = [];
+    for(i=0;i<10;i++){
+        profiles.push(profile);
+    }
+    profiles.push({
+        firstName:"December",
+        lastName:"last step to get into new year",
+        title:"Christmas Engineer",
+        description:"Bitcoin is falling"
+    })
+    profiles.push({
+        firstName:"Nani",
+        lastName:"MCA",
+        title:"Jobless Engineer",
+        description:"Natural star"
+    })
+
+    res.status(200).json(profiles);
+ })
 
 
 
