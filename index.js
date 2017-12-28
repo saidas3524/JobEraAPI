@@ -3,6 +3,7 @@ var express = require("express");
 var bodyParser = require("body-parser");
 var mongoose = require("mongoose");
 var User = require("./models/User");
+var Profile = require("./models/Profile");
 var jwt = require("jwt-simple");
 
 var passport = require('passport');
@@ -175,6 +176,34 @@ app.get("/getProfiles",function(req,res){
     })
 
     res.status(200).json(profiles);
+ })
+
+
+
+
+
+app.post("/saveProfile",function(req,res){
+    var id =   checkAuthorisation(req,res);
+    var profile = req.body;
+    const {personalInfo} = profile;
+    var newProfile = new Profile({
+       firstName: personalInfo.firstName,
+       lastName:personalInfo.lastName,
+       email:personalInfo.email,
+       description:personalInfo.description,
+       mobile:personalInfo.mobile,
+       address:personalInfo.address,
+    });
+
+    newProfile.save(function(err,response){
+        if(err){
+            res.status(400).send({message:"Something went wrong"})
+        }
+        res.status(200).json(newProfile);
+
+    })
+
+    
  })
 
 
