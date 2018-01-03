@@ -2,6 +2,12 @@
 var mongoose = require("mongoose");
 var bcrypt = require("bcrypt-nodejs");
 
+var Education = require('./Education')
+
+var Experience = require('./Experience')
+
+var Skill  = require("./Skill")
+
 var ProfileSchema = new mongoose.Schema({
     firstName: String,
     lastName: String,
@@ -10,7 +16,10 @@ var ProfileSchema = new mongoose.Schema({
     description:String,
     address:String,
     gender:String,
-    dob:Date
+    dob:Date,
+    educations:[mongoose.SchemaTypes.Mixed],
+    experiences:[mongoose.SchemaTypes.Mixed],
+    skills:[mongoose.SchemaTypes.Mixed]
     
     
     

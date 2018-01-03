@@ -185,7 +185,9 @@ app.get("/getProfiles",function(req,res){
 app.post("/saveProfile",function(req,res){
     var id =   checkAuthorisation(req,res);
     var profile = req.body;
-    const {personalInfo} = profile;
+    const{educations,experiences,skills,personalInfo} = profile;
+    
+
     var newProfile = new Profile({
        firstName: personalInfo.firstName,
        lastName:personalInfo.lastName,
@@ -193,6 +195,9 @@ app.post("/saveProfile",function(req,res){
        description:personalInfo.description,
        mobile:personalInfo.mobile,
        address:personalInfo.address,
+       educations:educations,
+       experiences:experiences,
+       skills:skills
     });
 
     newProfile.save(function(err,response){
