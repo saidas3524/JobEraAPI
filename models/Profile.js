@@ -17,12 +17,7 @@ var ProfileSchema = new mongoose.Schema({
     address:String,
     gender:String,
     dob:Date,
-    educations:[mongoose.SchemaTypes.Mixed],
-    experiences:[mongoose.SchemaTypes.Mixed],
-    skills:[mongoose.SchemaTypes.Mixed]
-    
-    
-    
+    sections:[mongoose.SchemaTypes.Mixed],
 })
 
 

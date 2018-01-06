@@ -151,31 +151,26 @@ app.get("/getUserInfo",function(req,res){
 })
 app.get("/getProfiles",function(req,res){
     var id =   checkAuthorisation(req,res);
-    var profile = {
-        firstName:"Sai Krishna",
-        lastName:"Dasoju",
-        title:"Software Engineer",
-        description:"something needs to be written to be tested"
-    };
+    Profile.find({},function(err,profiles){
+        if(err){
+          return  res.status(400).json({message:"Unable to fetch Profiles"});
+        }
+       return res.status(200).json(profiles);
 
-    var profiles = [];
-    for(i=0;i<10;i++){
-        profiles.push(profile);
-    }
-    profiles.push({
-        firstName:"December",
-        lastName:"last step to get into new year",
-        title:"Christmas Engineer",
-        description:"Bitcoin is falling"
     })
-    profiles.push({
-        firstName:"Nani",
-        lastName:"MCA",
-        title:"Jobless Engineer",
-        description:"Natural star"
-    })
+    
+ })
 
-    res.status(200).json(profiles);
+ app.get("/getProfileById/:id",function(req,res){
+    var id =   checkAuthorisation(req,res);
+    Profile.find({_id:req.params.id},function(err,profile){
+        if(err){
+          return  res.status(400).json({message:"Unable to fetch Profiles"});
+        }
+       return res.status(200).json(profile[0]);
+
+    })
+    
  })
 
 
@@ -185,7 +180,7 @@ app.get("/getProfiles",function(req,res){
 app.post("/saveProfile",function(req,res){
     var id =   checkAuthorisation(req,res);
     var profile = req.body;
-    const{educations,experiences,skills,personalInfo} = profile;
+    const{sections,personalInfo} = profile;
     
 
     var newProfile = new Profile({
@@ -195,9 +190,7 @@ app.post("/saveProfile",function(req,res){
        description:personalInfo.description,
        mobile:personalInfo.mobile,
        address:personalInfo.address,
-       educations:educations,
-       experiences:experiences,
-       skills:skills
+       sections:sections
     });
 
     newProfile.save(function(err,response){
