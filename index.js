@@ -63,6 +63,7 @@ var registerStrategy = new LocalStrategy(registerStrategyOptions, function (req,
             userName: user.userName,
             email: user.email,
             password: user.password,
+            isAdmin: false
         });
         newUser.save(function (err) {
             done(null, newUser);
@@ -113,7 +114,8 @@ app.post("/register", function (req, res, next) {
 
 function createToken(user, res) {
     var payload = {
-        sub: user._id
+        sub: user._id,
+        isAdmin : user.isAdmin
     }
 
     var jwtoken = jwt.encode(payload, "mysecret");
@@ -134,8 +136,8 @@ app.get("/greetings", function (req, res) {
     }))
 })
 app.get("/getUserInfo",function(req,res){
-   var id =   checkAuthorisation(req,res);
-    var searchUser = { _id: id }
+   const {sub,isAdmin} =   checkAuthorisation(req,res);
+    var searchUser = { _id: sub }
 
     User.findOne(searchUser, function (err, user) {
         if (err ) return res.status(400).json({
@@ -150,7 +152,7 @@ app.get("/getUserInfo",function(req,res){
     })
 })
 app.get("/getProfiles",function(req,res){
-    var id =   checkAuthorisation(req,res);
+    const {sub,isAdmin} =   checkAuthorisation(req,res);
     Profile.find({},function(err,profiles){
         if(err){
           return  res.status(400).json({message:"Unable to fetch Profiles"});
@@ -162,7 +164,7 @@ app.get("/getProfiles",function(req,res){
  })
 
  app.get("/getProfileById/:id",function(req,res){
-    var id =   checkAuthorisation(req,res);
+    const {sub,isAdmin}  =   checkAuthorisation(req,res);
     Profile.find({_id:req.params.id},function(err,profile){
         if(err){
           return  res.status(400).json({message:"Unable to fetch Profiles"});
@@ -178,7 +180,9 @@ app.get("/getProfiles",function(req,res){
 
 
 app.post("/saveProfile",function(req,res){
-    var id =   checkAuthorisation(req,res);
+    const {sub,isAdmin} =   checkAuthorisation(req,res);
+    if(!isAdmin)
+       return  res.status(401).send({message:"Not authorised to perform this action"})
     var profile = req.body;
     const{sections,personalInfo} = profile;
     
@@ -222,6 +226,6 @@ function checkAuthorisation(req, res) {
     if (!payload.sub) {
         res.status(401).send({ message: "not authorised" });
     }
-    return payload.sub;
+    return payload;
 }
 
