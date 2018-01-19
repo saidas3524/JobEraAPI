@@ -184,27 +184,41 @@ app.post("/saveProfile",function(req,res){
     if(!isAdmin)
        return  res.status(401).send({message:"Not authorised to perform this action"})
     var profile = req.body;
-    const{sections,personalInfo} = profile;
+    const{sections,personalInfo,id} = profile;
+    var resultObj = {
+        firstName: personalInfo.firstName,
+        dob:personalInfo.dob,
+        gender:personalInfo.gender,
+        lastName:personalInfo.lastName,
+        email:personalInfo.email,
+        description:personalInfo.description,
+        mobile:personalInfo.mobile,
+        address:personalInfo.address,
+        sections:sections
+     };
+    if(id){
+        Profile.findByIdAndUpdate(id,{...resultObj},{new:true},function(error,newProfile){
+            if(error){
+              return  res.status(400).send({message:"Something went wrong"})
+            }
+           return res.status(200).json(newProfile);
+        })
+    }
+    else{
+        var newProfile = new Profile({...resultObj});
+
+        newProfile.save(function(err,response){
+            if(err){
+               return res.status(400).send({message:"Something went wrong"})
+            }
+            return res.status(200).json(newProfile);
     
+        })
+    
+    }
 
-    var newProfile = new Profile({
-       firstName: personalInfo.firstName,
-       lastName:personalInfo.lastName,
-       email:personalInfo.email,
-       description:personalInfo.description,
-       mobile:personalInfo.mobile,
-       address:personalInfo.address,
-       sections:sections
-    });
 
-    newProfile.save(function(err,response){
-        if(err){
-            res.status(400).send({message:"Something went wrong"})
-        }
-        res.status(200).json(newProfile);
-
-    })
-
+   
     
  })
 
